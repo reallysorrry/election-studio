@@ -221,8 +221,8 @@ function SelectionStage({ title, step, candidates, onSelect }: { title: string; 
         </div>
         <div className={`grid min-h-0 flex-1 gap-3 sm:gap-5 ${candidates.length === 3 ? "grid-cols-3" : "grid-cols-2"}`}>
           {candidates.map((candidate) => (
-            <button key={candidate.id} onClick={() => onSelect(candidate)} className="group relative flex min-w-0 flex-col overflow-hidden rounded-[1.7rem] border border-border bg-card/75 p-3 text-left shadow-[0_16px_48px_color-mix(in_oklab,var(--foreground)_7%,transparent)] backdrop-blur-xl transition duration-200 active:scale-[0.975] sm:p-5 lg:p-6">
-              <span className="absolute right-3 top-3 rounded-full border border-border bg-background/80 px-2.5 py-1 text-[9px] font-bold uppercase text-muted-foreground backdrop-blur sm:right-5 sm:top-5 sm:text-[11px]">Explore</span>
+            <button key={candidate.id} onClick={() => onSelect(candidate)} className={`group relative flex min-w-0 flex-col overflow-hidden rounded-[1.7rem] border p-3 text-left shadow-[0_16px_48px_color-mix(in_oklab,var(--foreground)_7%,transparent)] backdrop-blur-xl transition duration-200 active:scale-[0.975] sm:p-5 lg:p-6 ${candidate.preferred ? "border-[oklch(0.82_0.15_95)] bg-[linear-gradient(150deg,color-mix(in_oklab,oklch(0.88_0.16_95)_18%,var(--card)),color-mix(in_oklab,oklch(0.68_0.18_152)_16%,var(--card)))]" : "border-border bg-card/75"}`}>
+              <span className={`absolute right-3 top-3 rounded-full border px-2.5 py-1 text-[9px] font-bold uppercase backdrop-blur sm:right-5 sm:top-5 sm:text-[11px] ${candidate.preferred ? "border-transparent bg-[linear-gradient(135deg,oklch(0.85_0.16_95),oklch(0.66_0.18_152))] text-white" : "border-border bg-background/80 text-muted-foreground"}`}>{candidate.preferred ? "Campaign pick" : "Explore"}</span>
               <div className="flex min-h-0 flex-1 items-center justify-center p-2 sm:p-5">
                 <img src={candidate.image} alt={`${candidate.symbol} symbol`} className="max-h-[24vh] w-full max-w-[270px] object-contain mix-blend-multiply transition-transform duration-300 group-active:scale-95" />
               </div>

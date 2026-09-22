@@ -1,12 +1,93 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { ArrowLeft, ArrowRight, Check, ChevronRight, Sparkles } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check, ChevronRight, Sparkles, X } from "lucide-react";
 import { useState } from "react";
 
 import crocodileAsset from "../assets/crocodile.png.asset.json";
 import footballAsset from "../assets/football.png.asset.json";
 import globeAsset from "../assets/globe.png.asset.json";
-import peacockAsset from "../assets/peacock.png.asset.json";
+import peacockAsset from "../assets/peacock-color.png.asset.json";
 import doveAsset from "../assets/dove.png.asset.json";
+
+function playTone(kind: "correct" | "wrong") {
+  try {
+    const Ctx = window.AudioContext ?? (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+    if (!Ctx) return;
+    const ctx = new Ctx();
+    const now = ctx.currentTime;
+    const notes = kind === "correct" ? [659.25, 830.61, 987.77, 1318.51] : [180, 120];
+    notes.forEach((freq, i) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = kind === "correct" ? "triangle" : "square";
+      osc.frequency.value = freq;
+      const start = now + i * (kind === "correct" ? 0.09 : 0.18);
+      const dur = kind === "correct" ? 0.42 : 0.26;
+      gain.gain.setValueAtTime(0.0001, start);
+      gain.gain.exponentialRampToValueAtTime(kind === "correct" ? 0.22 : 0.3, start + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.0001, start + dur);
+      osc.connect(gain).connect(ctx.destination);
+      osc.start(start);
+      osc.stop(start + dur + 0.02);
+    });
+    window.setTimeout(() => ctx.close(), 1600);
+  } catch {
+    /* audio is optional */
+  }
+}
+
+const CONFETTI = Array.from({ length: 26 }, (_, i) => ({
+  left: `${(i * 37) % 100}%`,
+  dx: `${((i * 53) % 120) - 60}px`,
+  dr: `${((i * 97) % 720) - 360}deg`,
+  dur: `${1.1 + ((i * 13) % 7) / 10}s`,
+  delay: `${((i * 7) % 5) / 12}s`,
+  color: ["oklch(0.82 0.17 92)", "oklch(0.7 0.18 150)", "oklch(0.75 0.15 200)", "oklch(0.88 0.14 110)"][i % 4],
+  size: 8 + (i % 4) * 4,
+}));
+
+function FeedbackBurst({ kind }: { kind: "correct" | "wrong" }) {
+  const correct = kind === "correct";
+  return (
+    <div className="pointer-events-none fixed inset-0 z-50 grid place-items-center">
+      <div
+        className="burst-veil absolute inset-0 backdrop-blur-sm"
+        style={{
+          background: correct
+            ? "radial-gradient(circle at 50% 45%, color-mix(in oklab, oklch(0.84 0.17 95) 70%, transparent), color-mix(in oklab, oklch(0.68 0.18 152) 55%, transparent) 55%, color-mix(in oklab, var(--background) 82%, transparent) 85%)"
+            : "radial-gradient(circle at 50% 45%, color-mix(in oklab, oklch(0.62 0.23 27) 55%, transparent), color-mix(in oklab, var(--background) 80%, transparent) 75%)",
+        }}
+      />
+      {correct && (
+        <>
+          <div className="burst-ripple absolute size-72 rounded-full border-[6px] border-[oklch(0.86_0.16_95)]" />
+          <div className="absolute inset-0 overflow-hidden">
+            {CONFETTI.map((c, i) => (
+              <span
+                key={i}
+                className="confetti-piece absolute top-[-8vh] rounded-[3px]"
+                style={{ left: c.left, width: c.size, height: c.size * 1.6, background: c.color, ["--dx" as string]: c.dx, ["--dr" as string]: c.dr, ["--dur" as string]: c.dur, ["--delay" as string]: c.delay }}
+              />
+            ))}
+          </div>
+        </>
+      )}
+      <div className={`${correct ? "burst-pop" : "burst-shake"} relative grid place-items-center`}>
+        <div
+          className="grid size-40 place-items-center rounded-full shadow-[0_30px_80px_rgba(0,0,0,0.25)] sm:size-52"
+          style={{
+            background: correct
+              ? "linear-gradient(140deg, oklch(0.88 0.16 95), oklch(0.66 0.18 152))"
+              : "linear-gradient(140deg, oklch(0.68 0.22 30), oklch(0.55 0.22 25))",
+            color: "white",
+          }}
+        >
+          {correct ? <Check className="size-24 sm:size-28" strokeWidth={3} /> : <X className="size-24 sm:size-28" strokeWidth={3} />}
+        </div>
+        <p className="mt-6 text-[clamp(1.6rem,5vw,3rem)] font-semibold text-foreground">{correct ? "Great choice!" : "Hmm, not this one."}</p>
+      </div>
+    </div>
+  );
+}
 
 export const Route = createFileRoute("/")({
   head: () => ({

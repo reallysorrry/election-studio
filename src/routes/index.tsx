@@ -128,10 +128,17 @@ const girls: Candidate[] = [
 function Index() {
   const [stage, setStage] = useState<Stage>("opening");
   const [active, setActive] = useState<Candidate | null>(null);
+  const [burst, setBurst] = useState<"correct" | "wrong" | null>(null);
 
   const openCandidate = (candidate: Candidate, group: "boy" | "girl") => {
+    const kind = candidate.preferred ? "correct" : "wrong";
     setActive(candidate);
-    setStage(group === "boy" ? "boy-detail" : "girl-detail");
+    setBurst(kind);
+    playTone(kind);
+    window.setTimeout(() => {
+      setBurst(null);
+      setStage(group === "boy" ? "boy-detail" : "girl-detail");
+    }, kind === "correct" ? 1500 : 1100);
   };
 
   const choose = () => setStage(stage === "boy-detail" ? "boy-confirm" : "girl-confirm");

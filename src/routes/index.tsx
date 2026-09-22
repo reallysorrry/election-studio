@@ -158,6 +158,7 @@ function Index() {
         <Confirmation candidate={active} label={stage === "boy-confirm" ? "First choice made" : "Second choice made"} onContinue={() => setStage(stage === "boy-confirm" ? "girl" : "final")} />
       )}
       {(stage === "final" || stage === "done") && <FinalScreen done={stage === "done"} onDone={() => setStage("done")} />}
+      {burst && <FeedbackBurst kind={burst} />}
     </main>
   );
 }

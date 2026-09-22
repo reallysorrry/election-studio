@@ -141,7 +141,15 @@ function Index() {
     }, kind === "correct" ? 1500 : 1100);
   };
 
-  const choose = () => setStage(stage === "boy-detail" ? "boy-confirm" : "girl-confirm");
+  const choose = () => {
+    const next: Stage = stage === "boy-detail" ? "boy-confirm" : "girl-confirm";
+    setBurst("correct");
+    playTone("correct");
+    window.setTimeout(() => {
+      setBurst(null);
+      setStage(next);
+    }, 1400);
+  };
 
   return (
     <main className="relative isolate h-[100dvh] min-h-[600px] overflow-hidden bg-background text-foreground selection:bg-accent/20">
